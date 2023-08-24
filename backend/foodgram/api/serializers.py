@@ -1,11 +1,12 @@
-from api.helpers import create_amount_ingredient
-from api.validators import ingredient_validator, tag_validator
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import F
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, Recipe, Tag
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
+
+from api.helpers import create_amount_ingredient
+from api.validators import ingredient_validator, tag_validator
+from recipes.models import Ingredient, Recipe, Tag
 
 User = get_user_model()
 
@@ -21,7 +22,7 @@ class UserRecipeSerializer(ModelSerializer):
             'cooking_time',
             'image',
         )
-        read_only_fields = ('__all__')
+        read_only_fields = '__all__'
 
 
 class UserSerializer(ModelSerializer):
@@ -42,9 +43,11 @@ class UserSerializer(ModelSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        if user.is_anonymous or (user == obj):
-            return False
-        return user.following.filter(author=obj).exists()
+        return (
+            user.following.filter(author=obj).exists()
+            and not
+            (user.is_anonymous or user == obj)
+        )
 
     def create(self, validated_data):
         user = User(
@@ -74,7 +77,7 @@ class UserSubscribeSerializer(UserSerializer):
             'recipes',
             'recipes_count',
         )
-        read_only_fields = ('__all__')
+        read_only_fields = '__all__'
 
     def get_is_subscribed(self):
         return True
@@ -87,8 +90,12 @@ class TagSerializer(ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('__all__')
-        read_only_fields = ('__all__')
+        fields = (
+            'name',
+            'color',
+            'slug',
+        )
+        read_only_fields = '__all__'
 
     def validate(self, data):
         for key, value in data.items():
@@ -100,8 +107,11 @@ class IngredientSerializer(ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('__all__')
-        read_only_fields = ('__all__')
+        fields = (
+            'name',
+            'measurement_unit',
+        )
+        read_only_fields = '__all__'
 
 
 class RecipeSerializer(ModelSerializer):
@@ -162,29 +172,35 @@ class RecipeSerializer(ModelSerializer):
 
     def get_is_favourite(self, recipe):
         user = self.context.get('view').request.user
-        if not user.is_anonymous:
-            return False
-        return user.favourites.filter(recipe=recipe).exists()
+        return (user.favourites.filter(recipe=recipe).exists()
+                and not 
+                user.is_anonymous
+        )
 
     def get_is_in_shopping_cart(self, recipe):
         user = self.context.get('view').request.user
-        if user.is_anonymous:
-            return False
-        return user.shopping_cart.filter(recipe=recipe).exists()
+        return (user.shopping_cart.filter(recipe=recipe).exists()
+                and not
+                user.is_anonymous
+        )
 
-    def validate(self, data):
-        tags = self.initial_data.get('tags')
+    def validate_ingredients(self, data):
         ingredients = self.initial_data.get('ingredients')
-        if not (tags and ingredients):
-            raise ValidationError(
-                'Тэги и ингредиенты обязательны к заполнению.'
-            )
-        tags = tag_validator(tags, Tag)
         ingredients = ingredient_validator(ingredients, Ingredient)
         data.update(
             {
-                'tags': tags,
                 'ingredients': ingredients,
+                'author': self.context.get('request').user,
+            }
+        )
+        return data
+
+    def validate_tags(self, data):
+        tags = self.initial_data.get('tags')
+        tags = tag_validator(tags, Tag)
+        data.update(
+            {
+                'tags': tags,
                 'author': self.context.get('request').user,
             }
         )

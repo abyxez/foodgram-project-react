@@ -1,16 +1,17 @@
-from api.validators import MinLenValidator
 from django.contrib.auth.models import AbstractUser
 from django.db.models import (CASCADE, BooleanField, CharField,
                               CheckConstraint, DateTimeField, EmailField, F,
                               ForeignKey, Model, Q, UniqueConstraint)
 from django.db.models.functions import Length
 
+from api.validators import MinLenValidator
+
 CharField.register_lookup(Length)
 
 
 class CustomUser(AbstractUser):
     username = CharField(
-        verbose_name='Юзернейм',
+        'Юзернейм',
         max_length=30,
         unique=True,
         help_text=('Обязательное к заполнению поле. ',
@@ -23,33 +24,32 @@ class CustomUser(AbstractUser):
         ),
     )
     first_name = CharField(
-        verbose_name='Полное имя',
+        'Полное имя',
         max_length=30,
-        unique=True,
         help_text=('Обязательное к заполнению поле. ',
                    'Максимальная длина - 30 символов.'),
     )
     last_name = CharField(
-        verbose_name='Фамилия',
+        'Фамилия',
         max_length=50,
         help_text=('Обязательное к заполнению поле. ',
                    'Максимальная длина - 50 символов.'),
     )
     email = EmailField(
-        verbose_name='Адрес электронной почты',
+        'Адрес электронной почты',
         max_length=100,
         unique=True,
         help_text=('Обязательное к заполнению поле. ',
                    'Максимальная длина - 100 символов.'),
     )
     password = CharField(
-        verbose_name='Пароль',
+        'Пароль',
         max_length=64,
         help_text=('Обязательное к заполнению поле. ',
                    'Максимальная длина - 64 символа.'),
     )
     is_active = BooleanField(
-        verbose_name='Активен',
+        'Активен',
         default=True,
     )
 

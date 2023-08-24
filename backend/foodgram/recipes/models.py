@@ -1,22 +1,23 @@
-from api.validators import hex_color_validator
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator, MaxValueValidator
 from django.db.models import (CASCADE, SET_NULL, CharField, DateTimeField,
                               ForeignKey, ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, TextField,
                               UniqueConstraint)
 from PIL import Image
 
+from api.validators import hex_color_validator
+
 User = get_user_model()
 
 
 class Ingredient(Model):
     name = CharField(
-        verbose_name='Ингредиент',
+        'Ингредиент',
         max_length=40,
     )
     measurement_unit = CharField(
-        verbose_name='Единица измерения',
+        'Единица измерения',
         max_length=40,
     )
 
@@ -37,21 +38,26 @@ class Ingredient(Model):
 
 class Tag(Model):
     name = CharField(
-        verbose_name='Имя тэга',
+        'Имя тэга',
         max_length=50,
         unique=True,
     )
     color = CharField(
-        verbose_name='Цвет',
-        max_length=15,
+        'Цвет',
+        max_length=7,
         unique=True,
-        db_index=False,
+        validators=(
+            RegexValidator(
+                '^#([a-fA-F0-9]{6})',
+                message='Поле должно содержать HEX-код выбранного цвета. '
+                        'Например, красный: #FF0000. '
+            )
+        ),
     )
     slug = CharField(
-        verbose_name='Слаг',
+        'Слаг',
         max_length=50,
         unique=True,
-        db_index=False
     )
 
     class Meta:
@@ -62,14 +68,14 @@ class Tag(Model):
     def __str__(self):
         return f'{self.name} (цвет: {self.color})'
 
-    def clean(self):
+    def clean_color(self):
         self.color = hex_color_validator(self.color)
         return super().clean()
 
 
 class Recipe(Model):
     name = CharField(
-        verbose_name='Название рецепта',
+        'Название рецепта',
         max_length=80
     )
     ingredients = ManyToManyField(
@@ -79,7 +85,7 @@ class Recipe(Model):
         through='recipes.AmountIngredient',
     )
     text = TextField(
-        verbose_name='Описание блюда',
+        'Описание блюда',
         max_length=500,
     )
     author = ForeignKey(
@@ -87,7 +93,8 @@ class Recipe(Model):
         related_name='recipes',
         to=User,
         on_delete=SET_NULL,
-        null=True,
+        null=False,
+        blank=False
     )
     tags = ManyToManyField(
         verbose_name='Тэг',
@@ -95,18 +102,22 @@ class Recipe(Model):
         to='Tag',
     )
     pub_date = DateTimeField(
-        verbose_name='Дата публикации',
+        'Дата публикации',
         auto_now_add=True,
         editable=False,
     )
     image = ImageField(
-        verbose_name='Изображение блюда',
+        'Изображение блюда',
         upload_to='recipe_images/',
     )
     cooking_time = PositiveSmallIntegerField(
-        verbose_name="Время приготовления",
-        default=0,
+        'Время приготовления',
+        validators=(
+            MinValueValidator(5),
+            MaxValueValidator(360),
+        )
     )
+
 
     class Meta:
         verbose_name = 'Рецепт'
@@ -143,15 +154,19 @@ class AmountIngredient(Model):
         on_delete=CASCADE,
     )
     amount = PositiveSmallIntegerField(
-        verbose_name='Количество ингредиента',
-        default=0,
+        'Количество ингредиента',
         validators=(
             MinValueValidator(
                 1,
                 'Нужен хотя бы 1 элемент.'
             ),
+            MaxValueValidator(
+                40,
+                'Слишком много ингредиентов.'
+            ),
         ),
     )
+
 
     class Meta:
         verbose_name = 'Ингредиент'
@@ -169,7 +184,23 @@ class AmountIngredient(Model):
         return f'{self.amount} мерных единиц {self.ingredient}'
 
 
-class ShoppingCart(Model):
+class BaseRecipeUserModel(Model):
+    """
+    Специальный класс, предотвращающий 
+    дублирование схожего кода.
+    """
+    
+    added = DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,
+        editable=False,
+    )
+
+    class Meta:
+        abstract = True
+
+
+class ShoppingCart(BaseRecipeUserModel):
     recipe = ForeignKey(
         verbose_name='Рецепты в корзине покупок',
         related_name='in_shopping_cart',
@@ -181,11 +212,6 @@ class ShoppingCart(Model):
         related_name='shopping_cart',
         to=User,
         on_delete=CASCADE,
-    )
-    added = DateTimeField(
-        verbose_name='Дата добавления',
-        auto_now_add=True,
-        editable=False,
     )
 
     class Meta:
@@ -204,7 +230,7 @@ class ShoppingCart(Model):
                 f'{self.recipe}')
 
 
-class Favourites(Model):
+class Favourites(BaseRecipeUserModel):
     recipe = ForeignKey(
         verbose_name='Любимые рецепты',
         related_name='in_favourites',
@@ -216,11 +242,6 @@ class Favourites(Model):
         related_name='favourites',
         to=User,
         on_delete=CASCADE,
-    )
-    added = DateTimeField(
-        verbose_name='Дата добавления',
-        auto_now_add=True,
-        editable=False,
     )
 
     class Meta:

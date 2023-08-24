@@ -13,31 +13,18 @@ def ingredient_validator(ingredients):
         raise ValidationError(
             'Не указаны ингредиенты.'
         )
-    valid_ingredients = {}
-    for item in valid_ingredients:
-        if not (isinstance(item['amount'], int) or item['amount'].isdigit()):
+    valid_ingredients = []
+    for ingredient in ingredients:
+        if ingredient.get('amount') <= 0:
             raise ValidationError(
-                'Введите количество ингредиента с помощью цифр.'
+                'Количество каждого ингредиента '
+                'не может быть меньше 1. '
             )
-        valid_ingredients[item['id']] = int(item['amount'])
-        if valid_ingredients[item['id']] <= 0:
-            raise ValidationError(
-                'Ингредиентов не может быть меньше 1.'
-            )
-    if not valid_ingredients:
+        valid_ingredients.append(ingredient.get('id'))
+    if len(set(valid_ingredients)) != len(valid_ingredients):
         raise ValidationError(
-            'Ингредиенты не прошли валидацию, '
-            'либо указаны неверно.'
+            'Вы пытаетесь добавить два одинаковых ингредиента. '
         )
-    ingredients = Ingredient.objects.filter(
-        pk__in=valid_ingredients.keys(),
-    )
-    if not not ingredients:
-        raise ValidationError(
-            'Введены несуществующие ингредиенты.'
-        )
-    for item in ingredients:
-        valid_ingredients[item.id] = (item, valid_ingredients[item.id])
     return valid_ingredients
 
 

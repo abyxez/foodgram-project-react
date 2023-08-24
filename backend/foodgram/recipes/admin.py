@@ -1,5 +1,6 @@
 from django.contrib.admin import ModelAdmin, TabularInline, register, site
 from django.utils.safestring import mark_safe
+
 from recipes.forms import TagForm
 from recipes.models import (AmountIngredient, Favourites, Ingredient, Recipe,
                             ShoppingCart, Tag)

@@ -15,7 +15,7 @@ class AuthorOrReadOnly(BasePermission):
         return (
             request.method in SAFE_METHODS
             or (request.user.is_authenticated
-                and (request.user == obj.author or request.user.is_staff))
+                and (request.user == obj.author or request.user.superuser))
         )
 
 
@@ -24,5 +24,5 @@ class AdminOrReadOnly(BasePermission):
         return (
             request.method in SAFE_METHODS
             or request.user.is_authenticated
-            and request.user.is_staff
+            and request.user.is_superuser
         )

@@ -1,3 +1,13 @@
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+from django.http.response import HttpResponse
+from djoser.views import UserViewSet
+from rest_framework.decorators import action
+from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+
 from api.helpers import get_shoplist_ingredients
 from api.mixins import CreateDeleteViewMixin
 from api.paginators import PageLimitPagination
@@ -5,16 +15,7 @@ from api.permissions import AdminOrReadOnly, AuthorOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeSerializer,
                              TagSerializer, UserRecipeSerializer,
                              UserSubscribeSerializer)
-from django.contrib.auth import get_user_model
-from django.db.models import Q
-from django.http.response import HttpResponse
-from djoser.views import UserViewSet
 from recipes.models import Favourites, Ingredient, Recipe, ShoppingCart, Tag
-from rest_framework.decorators import action
-from rest_framework.permissions import DjangoModelPermissions
-from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from users.models import Subscriptions
 
 User = get_user_model()
