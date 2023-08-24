@@ -8,4 +8,4 @@ RUN pip install -U pip &&\
 
 COPY . .
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8999", "foodgram.foodgram.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8999", "foodgram.wsgi"]

@@ -46,13 +46,13 @@ class Tag(Model):
         'Цвет',
         max_length=7,
         unique=True,
-        validators=(
+        validators=[
             RegexValidator(
                 '^#([a-fA-F0-9]{6})',
                 message='Поле должно содержать HEX-код выбранного цвета. '
                         'Например, красный: #FF0000. '
             )
-        ),
+        ],
     )
     slug = CharField(
         'Слаг',
@@ -92,7 +92,7 @@ class Recipe(Model):
         verbose_name='Автор рецепта',
         related_name='recipes',
         to=User,
-        on_delete=SET_NULL,
+        on_delete=CASCADE,
         null=False,
         blank=False
     )

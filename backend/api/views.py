@@ -3,7 +3,7 @@ from django.db.models import Q
 from django.http.response import HttpResponse
 from djoser.views import UserViewSet
 from rest_framework.decorators import action
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
@@ -27,7 +27,7 @@ class UserViewSet(UserViewSet, CreateDeleteViewMixin):
     add_serializer = UserSubscribeSerializer
     link_model = Subscriptions
 
-    @action
+    @action(detail=True, permission_classes=(IsAuthenticated,))
     def subscribe(self, request, id):
         pass
 
@@ -39,7 +39,9 @@ class UserViewSet(UserViewSet, CreateDeleteViewMixin):
     def delete_subscribe(self, request, id):
         return self.delete_relation(Q(author__id=id))
 
-    @action
+    @action(
+        methods=("get",), detail=False, permission_classes=(IsAuthenticated,)
+    )
     def subscriptions(self, request):
         pages = self.paginate_queryset(
             User.objects.filter(subscribers__user=self.request.user)
@@ -89,7 +91,7 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
             queryset = queryset.filter(in_favourites__user=self.request.user)
         return queryset
 
-    @action
+    @action(detail=True, permission_classes=(IsAuthenticated,))
     def make_favourite(self, request, id):
         pass
 
@@ -103,7 +105,7 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
         self.link_model = Favourites
         return self.delete_relation(Q(recipe__id=id))
 
-    @action
+    @action(detail=True, permission_classes=(IsAuthenticated,))
     def into_shopping_cart(self, request, id):
         pass
 
@@ -117,7 +119,7 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
         self.link_model = ShoppingCart
         return self.delete_relation(Q(recipe__id=id))
 
-    @action
+    @action(methods='get', detail=False)
     def get_shopping_cart_txt(self, request, id):
         user = self.request.user
         if not user.shopping_cart.exists():
