@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.db.models import F
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
@@ -173,16 +172,14 @@ class RecipeSerializer(ModelSerializer):
     def get_is_favourite(self, recipe):
         user = self.context.get('view').request.user
         return (user.favourites.filter(recipe=recipe).exists()
-                and not 
-                user.is_anonymous
-        )
+                and not
+                user.is_anonymous)
 
     def get_is_in_shopping_cart(self, recipe):
         user = self.context.get('view').request.user
         return (user.shopping_cart.filter(recipe=recipe).exists()
                 and not
-                user.is_anonymous
-        )
+                user.is_anonymous)
 
     def validate_ingredients(self, data):
         ingredients = self.initial_data.get('ingredients')

@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.utils import deconstruct
 
 if TYPE_CHECKING:
-    from recipes.models import Ingredient, Tag
+    from recipes.models import Tag
 
 
 def ingredient_validator(ingredients):

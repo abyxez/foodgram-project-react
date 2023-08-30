@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, RegexValidator, MaxValueValidator
-from django.db.models import (CASCADE, SET_NULL, CharField, DateTimeField,
-                              ForeignKey, ImageField, ManyToManyField, Model,
+from django.core.validators import (MaxValueValidator, MinValueValidator,
+                                    RegexValidator)
+from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
+                              ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, TextField,
                               UniqueConstraint)
 from PIL import Image
@@ -118,7 +119,6 @@ class Recipe(Model):
         )
     )
 
-
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
@@ -167,7 +167,6 @@ class AmountIngredient(Model):
         ),
     )
 
-
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Несколько ингредиентов'
@@ -186,10 +185,10 @@ class AmountIngredient(Model):
 
 class BaseRecipeUserModel(Model):
     """
-    Специальный класс, предотвращающий 
+    Специальный класс, предотвращающий
     дублирование схожего кода.
     """
-    
+
     added = DateTimeField(
         'Дата добавления',
         auto_now_add=True,
