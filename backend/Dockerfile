@@ -1,5 +1,9 @@
 FROM python:3.10.10
 
+RUN apt-get update &&\
+    apt-get upgrade -y &&\
+    apt-get install -y libpq-dev gcc netcat-traditional
+
 WORKDIR /app
 COPY requirements.txt ./
 
@@ -8,4 +12,4 @@ RUN pip install -U pip &&\
 
 COPY . .
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8999", "foodgram.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8002", "foodgram.wsgi"]

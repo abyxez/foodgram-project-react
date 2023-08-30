@@ -44,7 +44,7 @@ class CustomUser(AbstractUser):
     )
     password = CharField(
         'Пароль',
-        max_length=64,
+        max_length=512,
         help_text=('Обязательное к заполнению поле. ',
                    'Максимальная длина - 64 символа.'),
     )
