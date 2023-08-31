@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from recipes.forms import TagForm
 from recipes.models import (AmountIngredient, Favourites, Ingredient, Recipe,
                             ShoppingCart, Tag)
+from users.models import Subscriptions
 
 EMPTY_VALUE_DISPLAY = '-empty-'
 site.site_header = 'Foodgram Admin panel'
@@ -26,8 +27,6 @@ class TagAdmin(ModelAdmin):
         'name',
         'color',
     )
-
-    save_on_top = True
     empty_value_display = EMPTY_VALUE_DISPLAY
 
 
@@ -40,8 +39,6 @@ class IngredientAdmin(ModelAdmin):
     search_fields = (
         'name',
     )
-
-    save_on_top = True
     empty_value_display = EMPTY_VALUE_DISPLAY
 
 
@@ -74,7 +71,7 @@ class RecipeAdmin(ModelAdmin):
             'image',
         ),
     )
-    raw_id_fields = ('author', )
+    # raw_id_fields = ('author', )
     search_fields = (
         'name',
         'author__username',
@@ -87,7 +84,6 @@ class RecipeAdmin(ModelAdmin):
     )
 
     inlines = (IngredientInline, )
-    save_on_top = True
     empty_value_display = EMPTY_VALUE_DISPLAY
 
     def get_image(self, obj):
@@ -124,4 +120,18 @@ class ShoppingCartAdmin(ModelAdmin):
     search_fields = (
         'user__username',
         'recipe__name',
+    )
+
+
+@register(Subscriptions)
+class SubscriptionsAdmin(ModelAdmin):
+    list_display = (
+        'author',
+        'added',
+    )
+    search_fields = (
+        'author__username',
+    )
+    list_filter = (
+        'author__username',
     )

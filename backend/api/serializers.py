@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import F
+from rest_framework.exceptions import ValidationError
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
@@ -96,9 +97,14 @@ class TagSerializer(ModelSerializer):
         )
         read_only_fields = '__all__'
 
-    def validate(self, data):
+    def validate_color(self, data):
         for key, value in data.items():
             data[key] = value.strip(' #').upper()
+
+            # if Tag.objects.filter(color=data[key]).exists():
+            #     raise ValidationError(
+            #         'Тэг с таким цветом уже существует.'
+            #     )
         return data
 
 

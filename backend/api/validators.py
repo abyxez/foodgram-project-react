@@ -64,7 +64,7 @@ def tag_validator(tags_ids):
 
 
 def hex_color_validator(color):
-    color = color.strip(' #')
+    color = color.strip(' #').upper()
     if len(color) not in (3, 6):
         raise ValidationError(
             f'Код цвета {color} неверной длины: {len(color)}.'
