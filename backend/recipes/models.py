@@ -16,11 +16,11 @@ User = get_user_model()
 class Ingredient(Model):
     name = CharField(
         'Ингредиент',
-        max_length=40,
+        max_length=200,
     )
     measurement_unit = CharField(
         'Единица измерения',
-        max_length=40,
+        max_length=200,
     )
 
     class Meta:
