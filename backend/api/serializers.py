@@ -22,7 +22,7 @@ class UserRecipeSerializer(ModelSerializer):
             'cooking_time',
             'image',
         )
-        read_only_fields = '__all__'
+        read_only_fields = ('__all__')
 
 
 class UserSerializer(ModelSerializer):
@@ -77,7 +77,7 @@ class UserSubscribeSerializer(UserSerializer):
             'recipes',
             'recipes_count',
         )
-        read_only_fields = '__all__'
+        read_only_fields = ('__all__')
 
     def get_is_subscribed(self):
         return True
@@ -95,16 +95,21 @@ class TagSerializer(ModelSerializer):
             'color',
             'slug',
         )
-        read_only_fields = '__all__'
+        read_only_fields = ('__all__')
 
     def validate_color(self, data):
-        for key, value in data.items():
-            data[key] = value.strip(' #').upper()
-
-            # if Tag.objects.filter(color=data[key]).exists():
-            #     raise ValidationError(
-            #         'Тэг с таким цветом уже существует.'
-            #     )
+        color = data.get('color')
+        validate_color = color.strip('#').upper()
+        if Tag.objects.filter(color=color).exists():
+            raise ValidationError(
+                'Такой тэг уже есть в базе данных.'
+            )
+        else:
+            Tag.objects.get_or_create(
+                name=data['name'],
+                color=validate_color,
+                slug=data['slug'],
+            )
         return data
 
 
@@ -116,7 +121,7 @@ class IngredientSerializer(ModelSerializer):
             'name',
             'measurement_unit',
         )
-        read_only_fields = '__all__'
+        read_only_fields = ('__all__')
 
 
 class RecipeSerializer(ModelSerializer):

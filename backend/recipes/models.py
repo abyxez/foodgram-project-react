@@ -13,6 +13,8 @@ from api.validators import hex_color_validator
 User = get_user_model()
 
 
+IMAGE_SIZE = 500, 500
+
 class Ingredient(Model):
     name = CharField(
         'Ингредиент',
@@ -137,7 +139,7 @@ class Recipe(Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         image = Image.open(self.image.path)
-        image.thumbnail(256, 256)
+        image.thumbnail(IMAGE_SIZE)
         image.save(self.image.path)
 
 

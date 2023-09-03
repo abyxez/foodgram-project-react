@@ -16,7 +16,7 @@ services:
   backend:
     env_file:
       - .env
-    image: programmerhere/foodgram_backend
+    image: programmerhere/foodgram_backend:latest
     depends_on:
       - database
     volumes:
@@ -24,7 +24,7 @@ services:
       - media:/app/media
 
   frontend:
-    image: programmerhere/foodgram_frontend
+    image: programmerhere/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
       - static:/static

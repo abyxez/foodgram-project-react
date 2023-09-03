@@ -76,7 +76,7 @@ class Subscriptions(Model):
         on_delete=CASCADE,
     )
     user = ForeignKey(
-        verbose_name='Подписчики',
+        verbose_name='Подписчик автора',
         related_name='followers',
         to=CustomUser,
         on_delete=CASCADE,
@@ -88,11 +88,11 @@ class Subscriptions(Model):
     )
 
     class Meta:
-        verbose_name = 'Подпискка'
+        verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         constraints = (
             CheckConstraint(
-                check=Q(author=F('user')),
+                check=Q(author='user'),
                 name='\nНельзя подписаться на себя!\n',
             ),
             UniqueConstraint(
