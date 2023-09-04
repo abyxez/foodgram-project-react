@@ -31,20 +31,20 @@ python3 manage.py createsuperuser ( все поля обязательны, по
 
 Запуск и деплой приложения на сервере:
 
-Установить на сервере docker и docker-compose. Скопировать на сервер файлы docker-compose.yaml и default.conf:
+Установить на сервере docker и docker compose. Скопировать на сервер файлы docker-compose.yaml и default.conf:
 
-scp docker-compose.yml <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/docker-compose.yml
+scp docker compose.yml <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/docker-compose.yml
 scp nginx.conf <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/nginx.conf
 
-sudo docker-compose exec foodgram-backend-1 python manage.py migrate
+sudo docker compose exec foodgram-backend-1 python manage.py migrate
 
-sudo docker-compose exec foodgram-backend-1 python manage.py collectstatic --no-input 
+sudo docker compose exec foodgram-backend-1 python manage.py collectstatic --no-input 
 
 Создать пользователя:
 
-sudo docker-compose exec foodgram-backend-1 python manage.py createsuperuser
+sudo docker compose exec foodgram-backend-1 python manage.py createsuperuser
 
-sudo docker-compose exec foodgram-backend-1 python manage.py load_data_csv --path <путь_к_файлу> --model_name <имя_модели> --app_name <название_приложения>
+sudo docker compose exec backend python3 manage.py import
 
 ------------------------------------------------------
 
