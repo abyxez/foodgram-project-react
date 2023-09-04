@@ -23,7 +23,7 @@ class CreateDeleteViewMixin():
 
         serializer = self.add_serializer(obj)
         return Response(serializer.data, status=HTTP_201_CREATED)
-    
+
     def create_relation_user(self, obj_id) -> Response:
         obj = get_object_or_404(self.queryset, pk=obj_id)
         try:

@@ -3,7 +3,6 @@ from django.db.models import Q
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from django.core.handlers.wsgi import WSGIRequest
 from rest_framework.decorators import action
 from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from rest_framework.response import Response
@@ -15,8 +14,8 @@ from api.mixins import CreateDeleteViewMixin
 from api.paginators import PageLimitPagination
 from api.permissions import AdminOrReadOnly, AuthorOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeSerializer,
-                            TagSerializer, UserRecipeSerializer,
-                            UserSubscribeSerializer)
+                             TagSerializer, UserRecipeSerializer,
+                             UserSubscribeSerializer)
 from recipes.models import Favourites, Ingredient, Recipe, ShoppingCart, Tag
 from users.models import Subscriptions
 
@@ -73,7 +72,7 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
     def get_queryset(self):
         queryset = self.queryset
         tags = self.request.query_params.getlist('tags')
-        
+
         if tags:
             queryset = queryset.filter(tags__slug__in=tags).distinct()
 
@@ -83,7 +82,6 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
 
         if self.request.user.is_anonymous:
             return queryset
-
 
         shopping_cart = self.request.query_params.get('is_in_shopping_cart')
         if shopping_cart:
@@ -144,4 +142,3 @@ class TagViewSet(ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     permission_classes = (AdminOrReadOnly, )
     pagination_class = None
-
