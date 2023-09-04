@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
+from django.core.handlers.wsgi import WSGIRequest
 from rest_framework.decorators import action
 from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from rest_framework.response import Response
@@ -14,12 +15,15 @@ from api.mixins import CreateDeleteViewMixin
 from api.paginators import PageLimitPagination
 from api.permissions import AdminOrReadOnly, AuthorOrReadOnly
 from api.serializers import (IngredientSerializer, RecipeSerializer,
-                             TagSerializer, UserRecipeSerializer,
-                             UserSubscribeSerializer)
+                            TagSerializer, UserRecipeSerializer,
+                            UserSubscribeSerializer)
 from recipes.models import Favourites, Ingredient, Recipe, ShoppingCart, Tag
 from users.models import Subscriptions
 
 User = get_user_model()
+
+SYMBOL_TRUE_SEARCH = "1", "true"
+SYMBOL_FALSE_SEARCH = "0", "false"
 
 
 class UserViewSet(UserViewSet, CreateDeleteViewMixin):
@@ -35,7 +39,7 @@ class UserViewSet(UserViewSet, CreateDeleteViewMixin):
 
     @subscribe.mapping.post
     def create_subscribe(self, request, id):
-        return self.create_relation(id)
+        return self.create_relation_user(id)
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, id):
@@ -69,65 +73,61 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
     def get_queryset(self):
         queryset = self.queryset
         tags = self.request.query_params.getlist('tags')
-        if self.request.user.is_anonymous:
-            return queryset
+        
         if tags:
             queryset = queryset.filter(tags__slug__in=tags).distinct()
+
         author = self.request.query_params.get('author')
         if author:
             queryset = queryset.filter(author=author)
+
+        if self.request.user.is_anonymous:
+            return queryset
+
+
         shopping_cart = self.request.query_params.get('is_in_shopping_cart')
         if shopping_cart:
             queryset = queryset.filter(
                 in_shopping_cart__user=self.request.user
             )
+
         favourites = self.request.query_params.get('is_favourite')
         if favourites:
             queryset = queryset.filter(in_favourites__user=self.request.user)
         return queryset
 
     @action(detail=True, permission_classes=(IsAuthenticated,))
-    def make_favourite(self, request, id):
+    def favorite(self, request, id):
         recipe = get_object_or_404(Recipe, id=id)
         return recipe
 
-    @make_favourite.mapping.post
-    def recipe_into_favourites(self, request, id):
+    @favorite.mapping.post
+    def recipe_into_favourites(self, request, pk):
         self.link_model = Favourites
-        return self.create_relation(id)
+        return self.create_relation_recipe(pk)
 
-    @make_favourite.mapping.delete
-    def recipe_out_of_favourites(self, request, id):
+    @favorite.mapping.delete
+    def recipe_out_of_favourites(self, request, pk):
         self.link_model = Favourites
-        return self.delete_relation(Q(recipe__id=id))
+        return self.delete_relation(Q(recipe__id=pk))
 
     @action(detail=True, permission_classes=(IsAuthenticated,))
-    def into_shopping_cart(self, request, id):
-        if request.method == 'POST':
-            return self.recipe_into_shopping_cart(
-                ShoppingCart,
-                request.user,
-                id
-            )
-        else:
-            return self.recipe_out_of_shopping_cart(
-                ShoppingCart,
-                request.user,
-                id
-            )
+    def shopping_cart(self, request, id):
+        recipe = get_object_or_404(Recipe, id=id)
+        return recipe
 
-    @into_shopping_cart.mapping.post
-    def recipe_into_shopping_cart(self, request, id):
+    @shopping_cart.mapping.post
+    def recipe_into_shopping_cart(self, request, pk):
         self.link_model = ShoppingCart
-        return self.create_relation(id)
+        return self.create_relation_recipe(pk)
 
-    @into_shopping_cart.mapping.delete
-    def recipe_out_of_shopping_cart(self, request, id):
+    @shopping_cart.mapping.delete
+    def recipe_out_of_shopping_cart(self, request, pk):
         self.link_model = ShoppingCart
-        return self.delete_relation(Q(recipe__id=id))
+        return self.delete_relation(Q(recipe__id=pk))
 
     @action(methods='get', detail=False)
-    def get_shopping_cart_txt(self, request, id):
+    def download_cart_txt(self, request):
         user = self.request.user
         if not user.shopping_cart.exists():
             return Response(status=HTTP_400_BAD_REQUEST)
@@ -144,3 +144,4 @@ class TagViewSet(ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     permission_classes = (AdminOrReadOnly, )
     pagination_class = None
+

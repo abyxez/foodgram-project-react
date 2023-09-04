@@ -11,10 +11,23 @@ class CreateDeleteViewMixin():
     add_serializer: ModelSerializer
     link_model: Model
 
-    def create_relation(self, obj_id) -> Response:
+    def create_relation_recipe(self, obj_id) -> Response:
         obj = get_object_or_404(self.queryset, pk=obj_id)
         try:
-            self.link_model(None, obj.id, self.request.user.id).save()
+            self.link_model(None, recipe=obj, user=self.request.user).save()
+        except IntegrityError:
+            return Response(
+                {'error': 'Действие невозможно выполнить.'},
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = self.add_serializer(obj)
+        return Response(serializer.data, status=HTTP_201_CREATED)
+    
+    def create_relation_user(self, obj_id) -> Response:
+        obj = get_object_or_404(self.queryset, pk=obj_id)
+        try:
+            self.link_model(None, author=obj, user=self.request.user).save()
         except IntegrityError:
             return Response(
                 {'error': 'Действие невозможно выполнить.'},
