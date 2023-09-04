@@ -1,5 +1,4 @@
 from string import hexdigits
-from typing import TYPE_CHECKING
 
 from django.core.exceptions import ValidationError
 from django.utils import deconstruct
@@ -8,7 +7,7 @@ from django.utils import deconstruct
 def ingredient_validator(ingredients, Ingredient):
     if not ingredients:
         raise ValidationError("Не указаны ингридиенты")
-    
+
     valid_ingredients = {}
 
     for ingredient in ingredients:
@@ -19,10 +18,15 @@ def ingredient_validator(ingredients, Ingredient):
                 'Количество каждого ингредиента '
                 'не может быть меньше 1. '
             )
-    ingredients_to_add = Ingredient.objects.filter(id__in=valid_ingredients.keys())
+    ingredients_to_add = Ingredient.objects.filter(
+        id__in=valid_ingredients.keys()
+    )
 
     for ingredient in ingredients_to_add:
-        valid_ingredients[ingredient.id] = (ingredient, valid_ingredients[ingredient.id])
+        valid_ingredients[ingredient.id] = (
+            ingredient,
+            valid_ingredients[ingredient.id]
+        )
 
     return valid_ingredients
 

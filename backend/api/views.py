@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.http.response import HttpResponse
+from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
@@ -104,9 +104,17 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
     @action(detail=True, permission_classes=(IsAuthenticated,))
     def into_shopping_cart(self, request, id):
         if request.method == 'POST':
-            return self.recipe_into_shopping_cart(ShoppingCart, request.user, id)
+            return self.recipe_into_shopping_cart(
+                ShoppingCart,
+                request.user,
+                id
+            )
         else:
-            return self.recipe_out_of_shopping_cart(ShoppingCart, request.user, id)
+            return self.recipe_out_of_shopping_cart(
+                ShoppingCart,
+                request.user,
+                id
+            )
 
     @into_shopping_cart.mapping.post
     def recipe_into_shopping_cart(self, request, id):

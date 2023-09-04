@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import (MaxValueValidator, MinValueValidator,
                                     RegexValidator)
-from rest_framework.validators import UniqueValidator
 from django.db.models import (CASCADE, CharField, DateTimeField, ForeignKey,
                               ImageField, ManyToManyField, Model,
                               PositiveSmallIntegerField, TextField,
@@ -14,6 +13,7 @@ User = get_user_model()
 
 
 IMAGE_SIZE = 500, 500
+
 
 class Ingredient(Model):
     name = CharField(

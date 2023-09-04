@@ -1,13 +1,12 @@
 from django.contrib.auth import get_user_model
-from django.db.transaction import atomic
 from django.db.models import F
-from rest_framework.exceptions import ValidationError
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, PrimaryKeyRelatedField, IntegerField
+from rest_framework.exceptions import ValidationError
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from api.helpers import create_amount_ingredient
 from api.validators import ingredient_validator, tag_validator
-from recipes.models import Ingredient, Recipe, Tag, AmountIngredient
+from recipes.models import Ingredient, Recipe, Tag
 
 User = get_user_model()
 

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import (CASCADE, BooleanField, CharField,
-                              CheckConstraint, DateTimeField, EmailField, F,
-                              ForeignKey, Model, Q, UniqueConstraint)
+                              CheckConstraint, DateTimeField, EmailField,
+                              ForeignKey, Model, Q)
 from django.db.models.functions import Length
 
 from api.validators import MinLenValidator

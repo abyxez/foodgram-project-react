@@ -1,13 +1,12 @@
 import csv
 import os
-
-from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from recipes.models import Ingredient
+
 
 def read(file_name):
     csv_path = os.path.join(settings.BASE_DIR, file_name)
@@ -26,6 +25,6 @@ class Command(BaseCommand):
                 id=i,
                 name=row[0],
                 measurement_unit=row[1],
-            )     
+            )
             i += 1
-        print( ' Success !')
+        print(' Success !')

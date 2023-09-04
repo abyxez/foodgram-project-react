@@ -35,4 +35,3 @@ class CustomUserAdmin(UserAdmin):
         'email',
         'is_active',
     )
-
