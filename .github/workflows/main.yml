@@ -97,24 +97,24 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           command: |
-          cd projects/foodgram/
-          echo DEBUG=${{ secrets.DEBUG }} > .env
-          echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
-          echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
-          echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
-          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
-          echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
-          echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
-          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-          echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+            cd projects/foodgram/
+            echo DEBUG=${{ secrets.DEBUG }} > .env
+            echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
+            echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
+            echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+            echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> .env
 
-          sudo docker-compose stop
-          sudo docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs sudo docker rm
-          sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
-          sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-          sudo docker-compose up -d
-          sudo docker image prune -a
-          rm -f .env
+            sudo docker-compose stop
+            sudo docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs sudo docker rm
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
+            sudo docker-compose up -d
+            sudo docker image prune -a
+            rm -f .env
 
 
   send_message:
