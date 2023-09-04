@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.http.response import HttpResponse
 from djoser.views import UserViewSet
@@ -29,7 +30,8 @@ class UserViewSet(UserViewSet, CreateDeleteViewMixin):
 
     @action(detail=True, permission_classes=(IsAuthenticated,))
     def subscribe(self, request, id):
-        pass
+        author = get_object_or_404(User, id=id)
+        return author
 
     @subscribe.mapping.post
     def create_subscribe(self, request, id):
@@ -44,7 +46,7 @@ class UserViewSet(UserViewSet, CreateDeleteViewMixin):
     )
     def subscriptions(self, request):
         pages = self.paginate_queryset(
-            User.objects.filter(subscribers__user=self.request.user)
+            User.objects.filter(following__user=self.request.user)
         )
         serializer = UserSubscribeSerializer(pages, many=True)
         return self.get_paginated_response(serializer.data)
@@ -54,14 +56,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly, )
-
-    def get_queryset(self):
-        name = self.request.query_params.get('name')
-        queryset = self.queryset
-        if not name:
-            return queryset
-        new_queryset = queryset.filter(name__istartswith=name)
-        return [ingredient.name for ingredient in new_queryset]
+    pagination_class = None
 
 
 class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
@@ -93,7 +88,8 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
 
     @action(detail=True, permission_classes=(IsAuthenticated,))
     def make_favourite(self, request, id):
-        pass
+        recipe = get_object_or_404(Recipe, id=id)
+        return recipe
 
     @make_favourite.mapping.post
     def recipe_into_favourites(self, request, id):
@@ -107,7 +103,10 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
 
     @action(detail=True, permission_classes=(IsAuthenticated,))
     def into_shopping_cart(self, request, id):
-        pass
+        if request.method == 'POST':
+            return self.recipe_into_shopping_cart(ShoppingCart, request.user, id)
+        else:
+            return self.recipe_out_of_shopping_cart(ShoppingCart, request.user, id)
 
     @into_shopping_cart.mapping.post
     def recipe_into_shopping_cart(self, request, id):
@@ -136,3 +135,4 @@ class TagViewSet(ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AdminOrReadOnly, )
+    pagination_class = None

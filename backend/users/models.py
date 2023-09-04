@@ -90,16 +90,6 @@ class Subscriptions(Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        constraints = (
-            CheckConstraint(
-                check=Q(author='user'),
-                name='\nНельзя подписаться на себя!\n',
-            ),
-            UniqueConstraint(
-                fields=('author', 'user'),
-                name='\nПовторно подписаться нельзя!\n'
-            )
-        )
 
     def __str__(self):
         return f'{self.user.username} подписался на: {self.author.username}'

@@ -35,4 +35,4 @@ class CustomUserAdmin(UserAdmin):
         'email',
         'is_active',
     )
-    save_on_top = True
+

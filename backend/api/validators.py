@@ -4,27 +4,26 @@ from typing import TYPE_CHECKING
 from django.core.exceptions import ValidationError
 from django.utils import deconstruct
 
-if TYPE_CHECKING:
-    from recipes.models import Tag
 
-
-def ingredient_validator(ingredients):
+def ingredient_validator(ingredients, Ingredient):
     if not ingredients:
-        raise ValidationError(
-            'Не указаны ингредиенты.'
-        )
-    valid_ingredients = []
+        raise ValidationError("Не указаны ингридиенты")
+    
+    valid_ingredients = {}
+
     for ingredient in ingredients:
-        if ingredient.get('amount') <= 0:
+        valid_ingredients[ingredient["id"]] = int(ingredient["amount"])
+
+        if valid_ingredients[ingredient["id"]] <= 0:
             raise ValidationError(
                 'Количество каждого ингредиента '
                 'не может быть меньше 1. '
             )
-        valid_ingredients.append(ingredient.get('id'))
-    if len(set(valid_ingredients)) != len(valid_ingredients):
-        raise ValidationError(
-            'Вы пытаетесь добавить два одинаковых ингредиента. '
-        )
+    ingredients_to_add = Ingredient.objects.filter(id__in=valid_ingredients.keys())
+
+    for ingredient in ingredients_to_add:
+        valid_ingredients[ingredient.id] = (ingredient, valid_ingredients[ingredient.id])
+
     return valid_ingredients
 
 
@@ -49,7 +48,7 @@ class MinLenValidator:
             raise ValidationError(self.error_message)
 
 
-def tag_validator(tags_ids):
+def tag_validator(tags_ids, Tag):
     if not tags_ids:
         raise ValidationError(
             'Не указаны тэги.'
@@ -64,7 +63,7 @@ def tag_validator(tags_ids):
 
 
 def hex_color_validator(color):
-    color = color.strip(' #').upper()
+    color = color.strip('#').upper()
     if len(color) not in (3, 6):
         raise ValidationError(
             f'Код цвета {color} неверной длины: {len(color)}.'
