@@ -1,3 +1,19 @@
+Технологии
+
+Python 3.10
+Django 4.2.4
+Django REST framework 3.14
+Nginx
+Docker
+Postgres
+Gunicorn
+React.JS
+
+Документация api доступна по адресу:
+
+
+
+
 Локальный запуск проекта:
 
 git@github.com:abyxez/foodgram-project-react.git

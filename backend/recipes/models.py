@@ -164,7 +164,7 @@ class AmountIngredient(Model):
                 'Нужен хотя бы 1 элемент.'
             ),
             MaxValueValidator(
-                40,
+                1000,
                 'Слишком много ингредиентов.'
             ),
         ),

@@ -21,9 +21,6 @@ from users.models import Subscriptions
 
 User = get_user_model()
 
-SYMBOL_TRUE_SEARCH = "1", "true"
-SYMBOL_FALSE_SEARCH = "0", "false"
-
 
 class UserViewSet(UserViewSet, CreateDeleteViewMixin):
     pagination_class = PageLimitPagination
@@ -45,13 +42,13 @@ class UserViewSet(UserViewSet, CreateDeleteViewMixin):
         return self.delete_relation(Q(author__id=id))
 
     @action(
-        methods=("get",), detail=False, permission_classes=(IsAuthenticated,)
+        methods=('get',), detail=False, permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
         pages = self.paginate_queryset(
             User.objects.filter(following__user=self.request.user)
         )
-        serializer = UserSubscribeSerializer(pages, many=True)
+        serializer = UserSubscribeSerializer(pages, many=True, context={'request': request} )
         return self.get_paginated_response(serializer.data)
 
 
@@ -60,6 +57,20 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (AdminOrReadOnly, )
     pagination_class = None
+
+    def get_queryset(self):
+        name = self.request.query_params.get('name')
+        queryset = self.queryset
+
+        if not name:
+            return queryset
+        
+        start_queryset = queryset.filter(name__istartswith=name)
+        start_names = (ing.name for ing in start_queryset)
+        contain_queryset = queryset.filter(name__icontains=name).exclude(
+            name__in=start_names
+        )
+        return list(start_queryset) + list(contain_queryset)
 
 
 class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
@@ -89,7 +100,7 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
                 in_shopping_cart__user=self.request.user
             )
 
-        favourites = self.request.query_params.get('is_favourite')
+        favourites = self.request.query_params.get('is_favorited')
         if favourites:
             queryset = queryset.filter(in_favourites__user=self.request.user)
         return queryset
@@ -124,15 +135,21 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
         self.link_model = ShoppingCart
         return self.delete_relation(Q(recipe__id=pk))
 
-    @action(methods='get', detail=False)
-    def download_cart_txt(self, request):
+    @action(
+        methods=('get', ),
+        detail=False,
+        permission_classes=[IsAuthenticated, ]
+    )
+    def download_shopping_cart(self, request):
         user = self.request.user
         if not user.shopping_cart.exists():
             return Response(status=HTTP_400_BAD_REQUEST)
 
         name = f'{user.username}_id{user.id}_shoplist.txt'
         shoplist = get_shoplist_ingredients(user)
-        response = HttpResponse(shoplist)
+        response = HttpResponse(
+            shoplist, content_type="text.txt; charset=utf-8"
+        )
         response['Content-Disposition'] = f'attachment; filename={name}'
         return response
 

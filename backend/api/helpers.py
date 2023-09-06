@@ -24,9 +24,9 @@ def get_shoplist_ingredients(user):
     ]
     Ingredient = apps.get_model('recipes', 'Ingredient')
     ingredients = (
-        Ingredient.objects.filter(recipes__recipe_in_shopping_cart__user=user)
+        Ingredient.objects.filter(recipes__in_shopping_cart__user=user.id)
         .values('name', measurement=F('measurement_unit'))
-        .annotate(amount=Sum('recipe__amount'))
+        .annotate(amount=Sum('ingredient_recipe__amount'))
     )
     ingredient_list = [
         f'{ingredient["name"]}: '

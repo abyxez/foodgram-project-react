@@ -1,4 +1,5 @@
 from string import hexdigits
+from http import HTTPStatus
 
 from django.core.exceptions import ValidationError
 from django.utils import deconstruct
@@ -6,17 +7,22 @@ from django.utils import deconstruct
 
 def ingredient_validator(ingredients, Ingredient):
     if not ingredients:
-        raise ValidationError("Не указаны ингридиенты")
+        raise ValidationError('Не указаны ингридиенты')
 
     valid_ingredients = {}
 
     for ingredient in ingredients:
-        valid_ingredients[ingredient["id"]] = int(ingredient["amount"])
+        valid_ingredients[ingredient['id']] = int(ingredient['amount'])
 
-        if valid_ingredients[ingredient["id"]] <= 0:
+        if valid_ingredients[ingredient['id']] <= 0:
             raise ValidationError(
                 'Количество каждого ингредиента '
                 'не может быть меньше 1. '
+            )
+        if valid_ingredients[ingredient['id']] > 1000:
+            raise ValidationError(
+                'Вы пытаетесь добавить слишком '
+                'большое количество ингредиентов. '
             )
     ingredients_to_add = Ingredient.objects.filter(
         id__in=valid_ingredients.keys()

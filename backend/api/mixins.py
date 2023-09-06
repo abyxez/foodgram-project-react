@@ -2,9 +2,11 @@ from django.db.models import Model, Q
 from django.db.utils import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.validators import ValidationError
 from rest_framework.serializers import ModelSerializer
 from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
-                                   HTTP_400_BAD_REQUEST)
+                                   HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN)
+from users.models import Subscriptions
 
 
 class CreateDeleteViewMixin():
@@ -26,8 +28,19 @@ class CreateDeleteViewMixin():
 
     def create_relation_user(self, obj_id) -> Response:
         obj = get_object_or_404(self.queryset, pk=obj_id)
+        user = self.request.user
+        if Subscriptions.objects.filter(author=obj, user=user).exists():
+            return Response(
+                {'Вы уже подписаны на этого пользователя.'},
+                status=HTTP_403_FORBIDDEN,
+            )
+        if obj == self.request.user:
+            return Response(
+                {'Вы не можете подписаться на себя.'},
+                status=HTTP_403_FORBIDDEN,
+            )
         try:
-            self.link_model(None, author=obj, user=self.request.user).save()
+            self.link_model(None, author=obj, user=user).save()
         except IntegrityError:
             return Response(
                 {'error': 'Действие невозможно выполнить.'},

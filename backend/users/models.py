@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import (CASCADE, BooleanField, CharField,
-                              CheckConstraint, DateTimeField, EmailField,
+                              CheckConstraint, DateTimeField, EmailField, UniqueConstraint, F,
                               ForeignKey, Model, Q)
 from django.db.models.functions import Length
 
@@ -90,6 +90,15 @@ class Subscriptions(Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        constraints = (
+            UniqueConstraint(
+                fields=('author', 'user'),
+                name='\nНельзя подписаться повторно!\n',
+            ),
+            CheckConstraint(
+                check=~Q(author=F('user')), name='\nНельзя подписаться на себя!\n'
+            ),
+        )
 
     def __str__(self):
         return f'{self.user.username} подписался на: {self.author.username}'
