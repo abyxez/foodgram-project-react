@@ -1,10 +1,9 @@
 from django.contrib.auth import get_user_model
-from rest_framework.validators import UniqueTogetherValidator
 from django.db.models import F
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from rest_framework import status
+from rest_framework.validators import UniqueTogetherValidator
 
 from api.helpers import create_amount_ingredient
 from api.validators import ingredient_validator, tag_validator
@@ -101,7 +100,7 @@ class UserSubscribeSerializer(UserSerializer):
     #             code=status.HTTP_400_BAD_REQUEST
     #         )
     #     return data
-    
+
     def get_recipes(self, obj):
         request = self.context.get('request')
         limit = request.query_params.get('recipes_limit')
@@ -216,12 +215,12 @@ class RecipeSerializer(ModelSerializer):
         if Recipe.objects.filter(
             author=self.context.get('request').user,
             name=name
-            ).exists():
+        ).exists():
             raise ValidationError(
                 'Рецепт с таким названием уже '
                 'был создан ранее. '
             )
-        
+
         tags = tag_validator(tags_ids, Tag)
         ingredients = ingredient_validator(ingredients, Ingredient)
         data.update(
@@ -233,7 +232,7 @@ class RecipeSerializer(ModelSerializer):
             }
         )
         return data
-        
+
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')

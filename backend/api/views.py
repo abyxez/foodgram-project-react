@@ -48,7 +48,11 @@ class UserViewSet(UserViewSet, CreateDeleteViewMixin):
         pages = self.paginate_queryset(
             User.objects.filter(following__user=self.request.user)
         )
-        serializer = UserSubscribeSerializer(pages, many=True, context={'request': request} )
+        serializer = UserSubscribeSerializer(
+            pages,
+            many=True,
+            context={'request': request}
+        )
         return self.get_paginated_response(serializer.data)
 
 
@@ -64,7 +68,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
         if not name:
             return queryset
-        
+
         start_queryset = queryset.filter(name__istartswith=name)
         start_names = (ing.name for ing in start_queryset)
         contain_queryset = queryset.filter(name__icontains=name).exclude(

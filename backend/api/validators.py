@@ -1,5 +1,4 @@
 from string import hexdigits
-from http import HTTPStatus
 
 from django.core.exceptions import ValidationError
 from django.utils import deconstruct

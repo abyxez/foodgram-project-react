@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db.models import (CASCADE, BooleanField, CharField,
-                              CheckConstraint, DateTimeField, EmailField, UniqueConstraint, F,
-                              ForeignKey, Model, Q)
+                              CheckConstraint, DateTimeField, EmailField, F,
+                              ForeignKey, Model, Q, UniqueConstraint)
 from django.db.models.functions import Length
 
 from api.validators import MinLenValidator
@@ -96,7 +96,8 @@ class Subscriptions(Model):
                 name='\nНельзя подписаться повторно!\n',
             ),
             CheckConstraint(
-                check=~Q(author=F('user')), name='\nНельзя подписаться на себя!\n'
+                check=~Q(author=F('user')),
+                name='\nНельзя подписаться на себя!\n',
             ),
         )
 
