@@ -6,7 +6,8 @@ from djoser.views import UserViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import (HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST,
+                                   HTTP_403_FORBIDDEN)
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from api.helpers import get_shoplist_ingredients
@@ -156,6 +157,14 @@ class RecipeViewSet(ModelViewSet, CreateDeleteViewMixin):
         )
         response['Content-Disposition'] = f'attachment; filename={name}'
         return response
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        user = self.request.user
+        if user == instance.author:
+            instance.delete()
+            return Response(status=HTTP_204_NO_CONTENT)
+        return Response(status=HTTP_403_FORBIDDEN)
 
 
 class TagViewSet(ReadOnlyModelViewSet):

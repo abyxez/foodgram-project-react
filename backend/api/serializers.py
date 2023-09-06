@@ -24,7 +24,7 @@ class UserRecipeSerializer(ModelSerializer):
             'cooking_time',
             'image',
         )
-        read_only_fields = ('__all__', )
+        read_only_fields = ('id', 'name', 'text', 'cooking_time', 'image', )
 
 
 class UserSerializer(ModelSerializer):
@@ -45,9 +45,9 @@ class UserSerializer(ModelSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        if user.is_anonymous or (user == obj):
-            return False
-        return user.following.filter(author=obj).exists()
+        return (user.followers.filter(author=obj).exists()
+                and not
+                user.is_anonymous)
 
     def create(self, validated_data):
         user = User(
@@ -63,7 +63,8 @@ class UserSerializer(ModelSerializer):
 
 class UserSubscribeSerializer(UserSerializer):
     recipes = SerializerMethodField()
-    recipes_counted = SerializerMethodField()
+    recipes_count = SerializerMethodField()
+    is_subscribed = SerializerMethodField()
 
     class Meta:
         model = User
@@ -75,9 +76,17 @@ class UserSubscribeSerializer(UserSerializer):
             'email',
             'is_subscribed',
             'recipes',
-            'recipes_counted',
+            'recipes_count',
         )
-        read_only_fields = ('__all__', )
+        read_only_fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'recipes',
+            'recipes_count',
+        )
         validators = [
             UniqueTogetherValidator(
                 queryset=Subscriptions.objects.all(),
@@ -85,21 +94,6 @@ class UserSubscribeSerializer(UserSerializer):
                 message='Вы уже подписаны на этого пользователя'
             )
         ]
-
-    # def validate(self, data):
-    #     author = self.instance
-    #     user = self.context.get('request').user
-    #     if Subscriptions.objects.filter(author=author, user=user).exists():
-    #         raise ValidationError(
-    #             detail='Вы уже подписаны на этого пользователя!',
-    #             code=status.HTTP_400_BAD_REQUEST
-    #         )
-    #     if user == author:
-    #         raise ValidationError(
-    #             detail='Вы не можете подписаться на самого себя!',
-    #             code=status.HTTP_400_BAD_REQUEST
-    #         )
-    #     return data
 
     def get_recipes(self, obj):
         request = self.context.get('request')
@@ -113,7 +107,7 @@ class UserSubscribeSerializer(UserSerializer):
     def get_is_subscribed(self, obj):
         return True
 
-    def get_recipes_counted(self, obj):
+    def get_recipes_count(self, obj):
         return obj.recipes.count()
 
 
@@ -127,7 +121,7 @@ class TagSerializer(ModelSerializer):
             'color',
             'slug',
         )
-        read_only_fields = ('__all__', )
+        read_only_fields = ('id', 'name', 'color', 'slug', )
 
     def validate_color(self, data):
         color = data.get('color')
@@ -154,7 +148,7 @@ class IngredientSerializer(ModelSerializer):
             'name',
             'measurement_unit',
         )
-        read_only_fields = ('__all__', )
+        read_only_fields = ('id', 'name', 'measurement_unit', )
 
 
 class RecipeSerializer(ModelSerializer):
@@ -195,17 +189,15 @@ class RecipeSerializer(ModelSerializer):
 
     def get_is_favorited(self, recipe):
         user = self.context.get('view').request.user
-        if user.is_anonymous:
-            return False
-
-        return user.favourites.filter(recipe=recipe).exists()
+        return (user.favourites.filter(recipe=recipe).exists()
+                and not
+                user.is_anonymous)
 
     def get_is_in_shopping_cart(self, recipe):
         user = self.context.get('view').request.user
-        if user.is_anonymous:
-            return False
-
-        return user.shopping_cart.filter(recipe=recipe).exists()
+        return (user.shopping_cart.filter(recipe=recipe).exists()
+                and not
+                user.is_anonymous)
 
     def validate(self, data):
         tags_ids = self.initial_data.get('tags')
@@ -244,6 +236,12 @@ class RecipeSerializer(ModelSerializer):
     def update(self, recipe, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
+        user = self.context.get('view').request.user
+        author = self.validated_data.pop('author')
+        if not user == author:
+            raise ValidationError(
+                'Вы не можете редактировать чужой рецепт. '
+            )
 
         for key, value in validated_data.items():
             if hasattr(recipe, key):
