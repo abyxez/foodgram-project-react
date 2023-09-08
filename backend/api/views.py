@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
-from djoser.views import UserViewSet
+from djoser.views import UserViewSet as DUserViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from rest_framework.response import Response
@@ -23,7 +23,7 @@ from users.models import Subscriptions
 User = get_user_model()
 
 
-class UserViewSet(UserViewSet, CreateDeleteViewMixin):
+class UserViewSet(DUserViewSet, CreateDeleteViewMixin):
     pagination_class = PageLimitPagination
     permission_classes = (DjangoModelPermissions, )
     add_serializer = UserSubscribeSerializer

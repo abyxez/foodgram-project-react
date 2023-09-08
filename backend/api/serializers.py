@@ -45,9 +45,9 @@ class UserSerializer(ModelSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        return (user.followers.filter(author=obj).exists()
-                and not
-                user.is_anonymous)
+        if user.is_anonymous:
+            return False
+        return user.followers.filter(author=obj).exists()
 
     def create(self, validated_data):
         user = User(
@@ -64,7 +64,6 @@ class UserSerializer(ModelSerializer):
 class UserSubscribeSerializer(UserSerializer):
     recipes = SerializerMethodField()
     recipes_count = SerializerMethodField()
-    is_subscribed = SerializerMethodField()
 
     class Meta:
         model = User
@@ -86,6 +85,7 @@ class UserSubscribeSerializer(UserSerializer):
             'email',
             'recipes',
             'recipes_count',
+            'is_subscribed',
         )
         validators = [
             UniqueTogetherValidator(
@@ -189,15 +189,15 @@ class RecipeSerializer(ModelSerializer):
 
     def get_is_favorited(self, recipe):
         user = self.context.get('view').request.user
-        return (user.favourites.filter(recipe=recipe).exists()
-                and not
-                user.is_anonymous)
+        if user.is_anonymous:
+            return False
+        return user.favourites.filter(recipe=recipe).exists()
 
     def get_is_in_shopping_cart(self, recipe):
         user = self.context.get('view').request.user
-        return (user.shopping_cart.filter(recipe=recipe).exists()
-                and not
-                user.is_anonymous)
+        if user.is_anonymous:
+            return False
+        return user.shopping_cart.filter(recipe=recipe).exists()
 
     def validate(self, data):
         tags_ids = self.initial_data.get('tags')

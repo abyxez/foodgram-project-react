@@ -24,7 +24,8 @@ class CreateDeleteViewMixin():
             )
 
         serializer = self.add_serializer(obj)
-        return Response(serializer.data, status=HTTP_201_CREATED)
+        return Response(serializer.data,
+                        status=HTTP_201_CREATED)
 
     def create_relation_user(self, obj_id) -> Response:
         obj = get_object_or_404(self.queryset, pk=obj_id)
@@ -47,8 +48,12 @@ class CreateDeleteViewMixin():
                 status=HTTP_400_BAD_REQUEST,
             )
 
-        serializer = self.add_serializer(obj)
-        return Response(serializer.data, status=HTTP_201_CREATED)
+        serializer = self.add_serializer(
+            obj,
+            context={'request': self.request}
+        )
+        return Response(serializer.data,
+                        status=HTTP_201_CREATED)
 
     def delete_relation(self, q: Q) -> Response:
         to_delete = (
