@@ -72,7 +72,7 @@ class Tag(Model):
     def __str__(self):
         return f'{self.name} (цвет: {self.color})'
 
-    def clean_color(self):
+    def clean(self):
         self.color = hex_color_validator(self.color)
         return super().clean()
 

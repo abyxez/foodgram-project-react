@@ -1,7 +1,8 @@
 from django.contrib.admin import ModelAdmin, TabularInline, register, site
+from django.contrib.auth import get_user_model
 from django.utils.safestring import mark_safe
 
-from recipes.forms import TagForm
+from recipes.forms import AmountIngredientFormSet, TagForm
 from recipes.models import (AmountIngredient, Favourites, Ingredient, Recipe,
                             ShoppingCart, Tag)
 from users.models import Subscriptions
@@ -10,10 +11,13 @@ EMPTY_VALUE_DISPLAY = '-empty-'
 site.site_header = 'Foodgram Admin panel'
 
 
+User = get_user_model()
+
+
 class IngredientInline(TabularInline):
     model = AmountIngredient
-    extra = 1
-    min_num = 1
+    extra = 0
+    formset = AmountIngredientFormSet
 
 
 @register(Tag)
@@ -72,7 +76,6 @@ class RecipeAdmin(ModelAdmin):
             'image',
         ),
     )
-    # raw_id_fields = ('author', )
     search_fields = (
         'name',
         'author__username',

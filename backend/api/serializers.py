@@ -200,6 +200,7 @@ class RecipeSerializer(ModelSerializer):
         return user.shopping_cart.filter(recipe=recipe).exists()
 
     def validate(self, data):
+        request = self.context.get('request')
         tags_ids = self.initial_data.get('tags')
         ingredients = self.initial_data.get('ingredients')
         name = self.initial_data.get('name')
@@ -207,7 +208,7 @@ class RecipeSerializer(ModelSerializer):
         if Recipe.objects.filter(
             author=self.context.get('request').user,
             name=name
-        ).exists():
+        ).exists() and request.method == 'POST':
             raise ValidationError(
                 'Рецепт с таким названием уже '
                 'был создан ранее. '
@@ -249,7 +250,11 @@ class RecipeSerializer(ModelSerializer):
         if tags:
             recipe.tags.clear()
             recipe.tags.set(tags)
-        if ingredients:
+        if not ingredients:
+            raise ValidationError(
+                'Вы не можете удалить из рецепта все ингредиенты. '
+            )
+        else:
             recipe.ingredients.clear()
             create_amount_ingredient(recipe, ingredients)
 
