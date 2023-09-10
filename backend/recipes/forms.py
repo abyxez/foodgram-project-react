@@ -24,4 +24,4 @@ class AmountIngredientFormSet(BaseInlineFormSet):
         if not has_at_least_one_ingredient:
             raise ValidationError(
                 'Нужен хотя бы один ингредиент.'
-                )
+            )
