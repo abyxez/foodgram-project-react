@@ -23,9 +23,9 @@ http://qwertyk200.ddns.net/api/docs/
 
 Локальный запуск проекта:
 
-git@github.com:abyxez/foodgram-project-react.git
+git clone git@github.com:abyxez/foodgram-project-react.git
 
-cd foodgram-project-react
+cd foodgram-project-react/
 
 Создать и активировать виртуальное окружение:
 
