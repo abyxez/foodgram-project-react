@@ -1,19 +1,23 @@
-Автор проекта - Константин Питонов. 
+# Foodgram
 
-Технологии
+Автор проекта - Константин Питонов.
 
-Python 3.10
-Django 4.2.4
-Django REST framework 3.14
-Nginx
-Docker
-Postgres
-Gunicorn
-React.JS
+## Tecnhologies
+
+- Python 3.10
+- Django 4.2.4
+- Django REST framework 3.14
+- Nginx
+- Docker
+- Postgres
+
+Проект развёрнут по адресу:
+
+http://qwertyk200.ddns.net/ - ( подписка на поддержку истекает каждые 30 дней )
 
 Документация api доступна по адресу:
 
-http://qwertyk200.ddns.net/api/docs
+http://qwertyk200.ddns.net/api/docs/
 
 Проект Foodgram - это облачный сервис для кулинаров, где вы можете подписываться на других авторов, загружать свои рецепты, а также выводить списки ингредиентов на покупку в формате .txt. Сервис поддерживает /api/, например, с помощью Postman.
 
@@ -55,13 +59,13 @@ python3 manage.py createsuperuser ( все поля обязательны, по
 scp docker compose.yml <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/docker-compose.yml
 scp nginx.conf <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/nginx.conf
 
-sudo docker compose exec foodgram-backend-1 python manage.py migrate
+sudo docker compose exec backend python manage.py migrate
 
-sudo docker compose exec foodgram-backend-1 python manage.py collectstatic --no-input 
+sudo docker compose exec backend python manage.py collectstatic --no-input 
 
 Создать пользователя:
 
-sudo docker compose exec foodgram-backend-1 python manage.py createsuperuser
+sudo docker compose exec backend python manage.py createsuperuser
 
 sudo docker compose exec backend python3 manage.py import
 
