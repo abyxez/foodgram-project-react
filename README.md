@@ -87,6 +87,17 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-
 ```text
 sudo chmod +x /usr/local/bin/docker-compose
 ```
+
+Перенести данные для docker compose из вашей локальной /.../infra/:
+
+```text
+scp -r infra/* <server user>@<server IP>:/home/<server user>/foodgram-project-react/infra/
+
+cd infra/
+
+sudo docker compose up --build
+```
+
 Миграции и статика бэкенда:
 ```
 sudo docker compose exec backend python3 manage.py migrate
@@ -100,12 +111,6 @@ sudo docker compose exec backend python3 manage.py collectstatic --no-input
 sudo docker compose exec backend python3 manage.py createsuperuser
 
 sudo docker compose exec backend python3 manage.py import
-```
-
-Перенести данные для docker compose из вашей локальной /.../infra/:
-
-```text
-scp -r infra/* <server user>@<server IP>:/home/<server user>/foodgram-project-react/infra/
 ```
 
 ------------------------------------------------------
