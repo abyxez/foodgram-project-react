@@ -79,15 +79,15 @@ python3 manage.py createsuperuser
 scp docker compose.yml <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/docker-compose.yml
 scp nginx.conf <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/nginx.conf
 
-sudo docker compose exec backend python manage.py migrate
+sudo docker compose exec backend python3 manage.py migrate
 
-sudo docker compose exec backend python manage.py collectstatic --no-input 
+sudo docker compose exec backend python3 manage.py collectstatic --no-input 
 ```
 
-Создать пользователя:
+Создать пользователя и осуществить импорт CSV в Вашу БД:
 
 ```text
-sudo docker compose exec backend python manage.py createsuperuser
+sudo docker compose exec backend python3 manage.py createsuperuser
 
 sudo docker compose exec backend python3 manage.py import
 ```
