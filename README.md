@@ -23,51 +23,68 @@ http://qwertyk200.ddns.net/api/docs/
 
 Локальный запуск проекта:
 
+```text
 git clone git@github.com:abyxez/foodgram-project-react.git
+```
 
+```text
 cd foodgram-project-react/
+```
 
 Создать и активировать виртуальное окружение:
 
+```text
 python3 -m venv venv
+```
+Linux/macOS: ```text source venv/bin/activate```
+Windows: ```text source venv/Scripts/activate```
 
-Linux/macOS: source venv/bin/activate
-Windows: source venv/Scripts/activate
-
+```text
 python3 -m pip install --upgrade pip
-
+```
 Установить зависимости из файла requirements:
 
+```text
 pip install -r requirements.txt
+```
 
 Выполнить миграции:
 
+```text
 python3 manage.py migrate
+```
 
 Запустить проект:
 
+```text
 python3 manage.py runserver
+```
 
-Создать суперпользователя:
+Создать суперпользователя ( все поля обязательны, поэтому вместо почты можно подставить шаблон <some_letters>@a.ru )
 
-python3 manage.py createsuperuser ( все поля обязательны, поэтому вместо почты можно подставить шаблон <some_letters>@a.ru )
-
+```text
+python3 manage.py createsuperuser
+```
 Запуск и деплой приложения на сервере:
 
 Установить на сервере docker и docker compose. Скопировать на сервер файлы docker-compose.yaml и default.conf:
 
+```text
 scp docker compose.yml <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/docker-compose.yml
 scp nginx.conf <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/nginx.conf
 
 sudo docker compose exec backend python manage.py migrate
 
 sudo docker compose exec backend python manage.py collectstatic --no-input 
+```
 
 Создать пользователя:
 
+```text
 sudo docker compose exec backend python manage.py createsuperuser
 
 sudo docker compose exec backend python3 manage.py import
+```
 
 ------------------------------------------------------
 
