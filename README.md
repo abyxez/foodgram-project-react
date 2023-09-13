@@ -36,8 +36,14 @@ cd foodgram-project-react/
 ```text
 python3 -m venv venv
 ```
-Linux/macOS: ```text source venv/bin/activate```
-Windows: ```text source venv/Scripts/activate```
+Linux/macOS: 
+```text
+source venv/bin/activate
+```
+Windows: 
+```text
+source venv/Scripts/activate
+```
 
 ```text
 python3 -m pip install --upgrade pip
