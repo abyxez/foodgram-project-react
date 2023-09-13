@@ -21,7 +21,7 @@ http://qwertyk200.ddns.net/api/docs/
 
 Проект Foodgram - это облачный сервис для кулинаров, где вы можете подписываться на других авторов, загружать свои рецепты, а также выводить списки ингредиентов на покупку в формате .txt. Сервис поддерживает /api/, например, с помощью Postman.
 
-Локальный запуск проекта:
+### Локальный запуск проекта:
 
 ```text
 git clone git@github.com:abyxez/foodgram-project-react.git
@@ -71,14 +71,24 @@ python3 manage.py runserver
 ```text
 python3 manage.py createsuperuser
 ```
-Запуск и деплой приложения на сервере:
+### Запуск и деплой приложения на сервере:
 
-Установить на сервере docker и docker compose. Скопировать на сервер файлы docker-compose.yaml и default.conf:
+Установить на сервере docker и docker compose. Windows:
 
 ```text
-scp docker compose.yml <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/docker-compose.yml
-scp nginx.conf <логин_на_сервере>@<IP_сервера>:/home/<логин_на_сервере>/nginx.conf
+sudo apt install docker.io
+```
+Linux/macOS:
+```
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+```
+Установить разрешения для docker compose:
 
+```text
+sudo chmod +x /usr/local/bin/docker-compose
+```
+Миграции и статика бэкенда:
+```
 sudo docker compose exec backend python3 manage.py migrate
 
 sudo docker compose exec backend python3 manage.py collectstatic --no-input 
@@ -90,6 +100,12 @@ sudo docker compose exec backend python3 manage.py collectstatic --no-input
 sudo docker compose exec backend python3 manage.py createsuperuser
 
 sudo docker compose exec backend python3 manage.py import
+```
+
+Перенести данные для docker compose из вашей локальной /.../infra/:
+
+```text
+scp -r infra/* <server user>@<server IP>:/home/<server user>/foodgram-project-react/infra/
 ```
 
 ------------------------------------------------------
